@@ -1,4 +1,4 @@
-from scr.utils import load_operation, get_last_operation
+from src.utils import load_operation, get_last_operation
 from settings import FILE_PATH_OPERATIONS, LAST_NUMBER_OPERATION
 
 
