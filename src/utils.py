@@ -9,6 +9,11 @@ def load_operation(data_file):
     :param data_file: исходный zip файл с данными
     :return: отсортированный список данных
     """
+    # проверяем наличие файла
+    if not data_file.exists():
+        print('Отсутствует файл данных')
+        return []
+
     # получаем данные из zip файла
     with ZipFile(data_file, 'r') as zip_file:
         name_file = zip_file.namelist()
@@ -37,6 +42,11 @@ def get_last_operation(operations, last_operation):
     for i in range(len(operations)):
         if operations[i]['state'] != 'EXECUTED':
             continue
+
+        # отслеживаем последние успешные операции
+        index_operation += 1
+        if index_operation > last_operation:
+            break
 
         # добавляем в вывод дату операции
         date = operations[i]['date'][:10]
@@ -68,9 +78,5 @@ def get_last_operation(operations, last_operation):
         operation_last_view += (f'{operations[i]["operationAmount"]["amount"]} '
                                 f'{operations[i]["operationAmount"]["currency"]["name"]}\n\n'
                                 )
-
-        index_operation += 1
-        if index_operation >= last_operation:
-            break
 
     return operation_last_view
