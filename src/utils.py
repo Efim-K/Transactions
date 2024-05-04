@@ -20,22 +20,22 @@ def load_operation(data_file):
         with zip_file.open(name_file[0], 'r') as unzip_file:
             operation_list = json.load(unzip_file)
 
-    # проверяем список словарей на соответствие загружаемых данных
-    operation_list_new = [i for i in operation_list if 'date' in i]
-
-    # сортируем список по дате
-    operation_list_sort = sorted(operation_list_new, key=itemgetter('date'), reverse=True)
-
-    return operation_list_sort
+    return operation_list
 
 
-def get_last_operation(operations, last_operation):
+def get_last_operation(operation_list, last_operation):
     """
     Создает строку с последними операциями, выполненных клиентом
     :param operations: список операций клиента
     :param last_operation: количество последних операций для вывода
     :return: строка с последними операциями
     """
+    # создаем список словарей на соответствие структуры данных
+    operation_list_new = [i for i in operation_list if 'date' in i]
+
+    # сортируем список по дате
+    operations = sorted(operation_list_new, key=itemgetter('date'), reverse=True)
+
     operation_last_view = ''
     index_operation = 0
     # получаем список последних выполненных операций и преобразовываем для вывода
