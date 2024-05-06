@@ -23,60 +23,50 @@ def load_operation(data_file):
     return operation_list
 
 
-def get_last_operation(operation_list, last_operation):
+def get_executed_operations(operations):
     """
-    Создает строку с последними операциями, выполненных клиентом
-    :param operations: список операций клиента
-    :param last_operation: количество последних операций для вывода
-    :return: строка с последними операциями
+    Получаем список операций, выполненных действиями клиента
+    :param operations: загруженный список словарей всех действий клиента
+    :return: список словарей выполненных действий
     """
-    # создаем список словарей на соответствие структуры данных
-    operation_list_new = [i for i in operation_list if 'date' in i]
+    return [
+        operation
+        for operation in operations
+        if operation.get("state") == "EXECUTED"
+    ]
 
-    # сортируем список по дате
-    operations = sorted(operation_list_new, key=itemgetter('date'), reverse=True)
 
-    operation_last_view = ''
-    index_operation = 0
-    # получаем список последних выполненных операций и преобразовываем для вывода
-    for i in range(len(operations)):
-        if operations[i]['state'] != 'EXECUTED':
-            continue
+def get_sorted_operations_by_date(operations):
+    """
+    Сортируем операции по дате, начиная с последней
+    :param operations:список словарей операций
+    :return:отсортированный список словарей по дате
+    """
+    return sorted(operations, key=itemgetter('date'), reverse=True)
 
-        # отслеживаем последние успешные операции
-        index_operation += 1
-        if index_operation > last_operation:
-            break
 
-        # добавляем в вывод дату операции
-        date = operations[i]['date'][:10]
-        operation_last_view += f'{date[8:10]}.{date[5:7]}.{date[0:4]}'
-        # добавляем в вывод наименование операции
-        operation_last_view += f' {operations[i]['description']}\n'
+def convert_date(operation_date: str):
+    """
+    Преобразовывает строку с датой из базы данных операций в строку даты формата ДД.ММ.ГГГГ
+    :param operation_date: строка
+    :return: f строка
+    """
+    date = operation_date[:10]
+    return f'{date[8:10]}.{date[5:7]}.{date[0:4]}'
 
-        # добавляем в вывод откуда пришел перевод
-        if "from" in operations[i]:
-            if operations[i]['from'][:4] == 'Счет':
-                operation_last_view += f'Счет **{operations[i]["from"][-4:]} '
-            else:
-                operation_last_view += (f'{operations[i]["from"][:-12]}'
-                                        f' {operations[i]["from"][-11:-9]}'
-                                        f'** **** {operations[i]["from"][-4:]} '
-                                        )
 
-        # добавляем в вывод куда пришел перевод
-        if "to" in operations[i]:
-            if operations[i]["to"][:4] == 'Счет':
-                operation_last_view += f'-> Счет **{operations[i]["to"][-4:]}\n'
-            else:
-                operation_last_view += (f'-> {operations[i]["to"][:-12]}'
-                                        f' {operations[i]["to"][-11:-9]}'
-                                        f'** **** {operations[i]["to"][-4:]}\n'
-                                        )
-
-        # добавляем в вывод сумму операции
-        operation_last_view += (f'{operations[i]["operationAmount"]["amount"]} '
-                                f'{operations[i]["operationAmount"]["currency"]["name"]}\n\n'
-                                )
-
-    return operation_last_view
+def encrypt_payment_info(payment_info: str):
+    """
+    Преобразовывает информацию платежей операций
+    :param payment_info: строка операции платежа
+    :return: f строка
+    """
+    if payment_info.startswith('Счет'):
+        return f'Счет **{payment_info[-4:]} '
+    elif payment_info != '':
+        return (
+            f'{payment_info[:-12]}'
+            f' {payment_info[-11:-9]}'
+            f'** **** {payment_info[-4:]} '
+        )
+    return ''
